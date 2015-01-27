@@ -19,17 +19,17 @@ public:
     Q2(int numberOfPackets);
     void GenerateArrivalPackects();
     void GenerateObserverPackets();
+    void SortDES();
     ~Q2();
 private:
-    void InsertArrivalPacket(std::list<int>::iterator it);
+    void InsertPacket(std::list<packet>::iterator it, packet packetToInsert);
     
     int _Na, _Nd, _No, _Ni, _Np, _Ta, _Td, _To, _Time, _lambda;
-    std::list<packet> * _DES;
+    std::list<packet> _DES;
 };
 
 Q2::Q2(int numberOfPackets)
 {
-    _DES = new std::list<packet>;
     _lambda = 75;
     _Na = 0;
     _Nd = 0;
@@ -51,7 +51,7 @@ void Q2::GenerateArrivalPackects()
         _Ta += ExponentialGenerator(_lambda);
         arrival.time = _Ta;
         arrival.type = a;
-        _DES->push_back(arrival);
+        _DES.push_back(arrival);
     }
 }
 
@@ -60,31 +60,63 @@ void Q2::GenerateObserverPackets()
     int alpha;
     
     packet observer;
-    std::list<int>::iterator iterator;
+    std::list<packet>::iterator it;
     
-    alpha = 3*lambda;
-    iterator = _DES->begin();
+    alpha = 3*_lambda;
+    it = _DES.begin();
     
     while (_To < _Time)
     {
-        _To += ExponentialGenerator(_alpha);
+        _To += ExponentialGenerator(alpha);
         observer.type = o;
         observer.time = _To;
-        InsertArrivalPacket(iterator);
+        InsertPacket(it, observer);
     }
 }
 
-void Q2::InsertArrivalPacket(std::list<int>::iterator it)
+void Q2::SortDES()
 {
-    if (it.)
+    packet event;
+    
+    while (_DES.empty())
     {
-        <#statements#>
+        event = _DES.front();
+        if (event.type == a)
+        {
+            
+        }
+    }
+}
+
+void Q2::InsertPacket(std::list<packet>::iterator it, packet packetToInsert)
+{
+    if (it != _DES.end())
+    {
+        if (it->time > packetToInsert.time)
+        {
+            _DES.insert(it, packetToInsert);
+        }
+        else
+        {
+            if (std::next(it)->time > packetToInsert.time)
+            {
+                _DES.insert(std::next(it), packetToInsert);
+            }
+            else
+            {
+                it++;
+                InsertPacket(it, packetToInsert);
+            }
+        }
+    }
+    else
+    {
+        _DES.push_back(packetToInsert);
     }
 }
 
 Q2::~Q2()
 {
-    delete[] _DES;
 }
 
 #endif
