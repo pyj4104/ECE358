@@ -14,11 +14,15 @@
 #ifndef _Sim_h
 #define _Sim_h
 
-double ExponentGenerator(double number)
+double ExponentialGenerator(int x)
 {
-    double value, lambda;
+    double value, number;
+    int lambda;
     
-    lambda = 75;
+    lambda = x;
+    
+    srand(time(0));
+    number = rand()/(double)(RAND_MAX);
     
     value = -1 * log(1-number) / lambda;
     return value;
