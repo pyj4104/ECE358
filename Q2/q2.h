@@ -20,15 +20,18 @@ public:
     void GenerateArrivalPackects();
     void GenerateObserverPackets();
     void SortDES();
+    int Np();
+    int No();
+    int Ni();
     ~Q2();
 private:
     void InsertPacket(std::list<packet>::iterator it, packet packetToInsert);
     
-    int _Na, _Nd, _No, _Ni, _Np, _Ta, _Td, _To, _Time, _lambda;
+    int _Na, _Nd, _No, _Ni, _Np, _Ta, _Td, _To, _Time, _lambda, _L, _C;
     std::list<packet> _DES;
 };
 
-Q2::Q2(int numberOfPackets)
+Q2::Q2(int timeElapsed)
 {
     _lambda = 75;
     _Na = 0;
@@ -39,7 +42,9 @@ Q2::Q2(int numberOfPackets)
     _Ta = 0;
     _Td = 0;
     _To = 0;
-    _Time = numberOfPackets;
+    _Time = timeElapsed;
+    _L = 12000;
+    _C = 1000000;
 }
 
 void Q2::GenerateArrivalPackects()
@@ -76,14 +81,60 @@ void Q2::GenerateObserverPackets()
 
 void Q2::SortDES()
 {
-    packet event;
+    double packetLength, serviceTime;
     
-    while (_DES.empty())
+    packet event, departure;
+    std::list<packet>::iterator it;
+    
+    it = _DES.begin();
+    
+    while (!_DES.empty())
     {
         event = _DES.front();
+        
         if (event.type == a)
         {
+            packetLength = ExponentialGenerator(1/_L);
+            serviceTime = packetLength/_C;
             
+            if (_Na-_Nd == 0)
+            {
+                _Td = event.time + serviceTime;
+            }
+            else
+            {
+                _Td += serviceTime;
+            }
+            
+            departure.time = _Td;
+            departure.type = d;
+            
+            InsertPacket(it, departure);
+            _Na += 1;
+        }
+        else if(event.type == d)
+        {
+            _Nd += 1;
+            it = std::next(it);
+            _DES.pop_front();
+        }
+        else if(event.type == o)
+        {
+            _No += 1;
+            _Np = _Np * (_No - _Nd);
+            
+            if (_Na-_Nd == 0)
+            {
+                _Ni += 1;
+            }
+            
+            it = std::next(it);
+            _DES.pop_front();
+        }
+        
+        if (it != _DES.end())
+        {
+            it++;
         }
     }
 }
@@ -113,6 +164,21 @@ void Q2::InsertPacket(std::list<packet>::iterator it, packet packetToInsert)
     {
         _DES.push_back(packetToInsert);
     }
+}
+
+int Q2::Np()
+{
+    return _Np;
+}
+
+int Q2::No()
+{
+    return _No;
+}
+
+int Q2::Ni()
+{
+    return _Ni;
 }
 
 Q2::~Q2()

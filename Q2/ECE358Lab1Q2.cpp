@@ -10,13 +10,21 @@
 
 using namespace std;
 
-int numberOfPackets;
+int timeElapsed;
 
 int main()
 {
-    numberOfPackets = 10000;
+    timeElapsed = 1;
     
+    Q2 * question2;
     
+    question2 = new Q2(timeElapsed);
+    question2 -> GenerateArrivalPackects();
+    question2 -> GenerateObserverPackets();
+    question2 -> SortDES();
+    
+    printf("Average # of packets: %f\n", (double)(question2 -> Np())/(double)(question2 -> No()));
+    printf("Idle Probability: %f\n", (double)(question2 -> Ni())/(double)(question2 -> No()));
     
 	return 0;
 }
