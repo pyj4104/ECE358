@@ -10,9 +10,6 @@
 #include "sim.h"
 #include "packetStructure.h"
 
-#ifndef _q2_h
-#define _q2_h
-
 class Q2
 {
 public:
@@ -27,7 +24,7 @@ public:
 private:
     void InsertPacket(std::list<packet>::iterator it, packet packetToInsert);
     
-    int _Na, _Nd, _No, _Ni, _Np, _Ta, _Td, _To, _Time, _lambda, _L, _C;
+    int _Na, _Nd, _No, _Ni, _Np, _Time, _lambda, _L, _C;
     std::list<packet> _DES;
 };
 
@@ -39,9 +36,6 @@ Q2::Q2(int timeElapsed)
     _No = 0;
     _Ni = 0;
     _Np = 0;
-    _Ta = 0;
-    _Td = 0;
-    _To = 0;
     _Time = timeElapsed;
     _L = 12000;
     _C = 1000000;
@@ -49,12 +43,16 @@ Q2::Q2(int timeElapsed)
 
 void Q2::GenerateArrivalPackects()
 {
+    printf("Beginnig of Observer Packets");
+    double ta;
     packet arrival;
     
-    while (_Ta < _Time)
+    ta = 0;
+    
+    while (ta < _Time)
     {
-        _Ta += ExponentialGenerator(_lambda);
-        arrival.time = _Ta;
+        ta += ExponentialGenerator(_lambda);
+        arrival.time = ta;
         arrival.type = a;
         _DES.push_back(arrival);
     }
@@ -62,31 +60,36 @@ void Q2::GenerateArrivalPackects()
 
 void Q2::GenerateObserverPackets()
 {
+    printf("Beginnig of Observer Packets");
     int alpha;
+    double to;
     
     packet observer;
     std::list<packet>::iterator it;
     
     alpha = 3*_lambda;
     it = _DES.begin();
+    to = 0;
     
-    while (_To < _Time)
+    while (to < _Time)
     {
-        _To += ExponentialGenerator(alpha);
+        to += ExponentialGenerator(alpha);
         observer.type = o;
-        observer.time = _To;
+        observer.time = to;
         InsertPacket(it, observer);
     }
 }
 
 void Q2::SortDES()
 {
-    double packetLength, serviceTime;
+    printf("Beginning of SortDES");
+    double packetLength, serviceTime, td;
     
     packet event, departure;
     std::list<packet>::iterator it;
     
     it = _DES.begin();
+    td = 0;
     
     while (!_DES.empty())
     {
@@ -94,19 +97,19 @@ void Q2::SortDES()
         
         if (event.type == a)
         {
-            packetLength = ExponentialGenerator(1/_L);
+            packetLength = ExponentialGenerator((double)1/_L);
             serviceTime = packetLength/_C;
             
             if (_Na-_Nd == 0)
             {
-                _Td = event.time + serviceTime;
+                td = event.time + serviceTime;
             }
             else
             {
-                _Td += serviceTime;
+                td += serviceTime;
             }
             
-            departure.time = _Td;
+            departure.time = td;
             departure.type = d;
             
             InsertPacket(it, departure);
@@ -115,8 +118,6 @@ void Q2::SortDES()
         else if(event.type == d)
         {
             _Nd += 1;
-            it = std::next(it);
-            _DES.pop_front();
         }
         else if(event.type == o)
         {
@@ -127,15 +128,9 @@ void Q2::SortDES()
             {
                 _Ni += 1;
             }
-            
-            it = std::next(it);
-            _DES.pop_front();
         }
         
-        if (it != _DES.end())
-        {
-            it++;
-        }
+        _DES.pop_front();
     }
 }
 
@@ -149,15 +144,8 @@ void Q2::InsertPacket(std::list<packet>::iterator it, packet packetToInsert)
         }
         else
         {
-            if (std::next(it)->time > packetToInsert.time)
-            {
-                _DES.insert(std::next(it), packetToInsert);
-            }
-            else
-            {
-                it++;
-                InsertPacket(it, packetToInsert);
-            }
+            it++;
+            InsertPacket(it, packetToInsert);
         }
     }
     else
@@ -185,4 +173,3 @@ Q2::~Q2()
 {
 }
 
-#endif

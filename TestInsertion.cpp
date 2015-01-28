@@ -75,7 +75,7 @@ int main()
     
     while (number < 75)
     {
-        number += rand() % 10+10;
+        number += rand() % 10;
         InsertPacket(it, number);
     }
     
