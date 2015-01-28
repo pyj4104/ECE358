@@ -13,8 +13,7 @@ int main()
 {
     int timeElapsed;
     
-    printf("hi");
-    timeElapsed = 10;
+    timeElapsed = 95;
     
     q2 * question2;
     

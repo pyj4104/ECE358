@@ -15,7 +15,7 @@
 #ifndef ECE358Lab1_q2_h
 #define ECE358Lab1_q2_h
 
-enum PacketType : char{a = 'a', d = 'd', o = 'o'};
+enum PacketType {a = 'a', d = 'd', o = 'o'};
 
 struct packet
 {
@@ -27,7 +27,7 @@ class q2
 {
 public:
     q2 (int numberOfPackets);
-    void GenerateArrivalPackects(), GenerateObserverPackets(), SortDES();
+	void GenerateArrivalPackects(), GenerateObserverPackets(), GenerateDeparturePackets(), SortDES();
     int Np(), No(), Ni();
     ~q2();
 private:
@@ -93,6 +93,11 @@ void q2::GenerateObserverPackets()
 	}
 }
 
+void q2::GenerateDeparturePackets()
+{
+	
+}
+
 void q2::SortDES()
 {
 	printf("Beginnig of SortDES\n");
@@ -134,7 +139,7 @@ void q2::SortDES()
 		else if (_DES.begin()->TypeOfPacket == o)
 		{
 			_No = _No + 1;
-			_Np = _Np * (_No - _Nd);
+			_Np = _Np + _Na - _Nd;
 			
 			if (_Na - _Nd == 0)
 			{
@@ -150,7 +155,7 @@ void q2::SortDES()
 
 void q2::InsertPacket(std::list<packet>::iterator it, packet packetToInsert)
 {
-	if (it->GenerationTime > _DES.end()->GenerationTime)
+	if (it != _DES.end())
 	{
 		if (it->GenerationTime > packetToInsert.GenerationTime)
 		{
@@ -158,8 +163,15 @@ void q2::InsertPacket(std::list<packet>::iterator it, packet packetToInsert)
 		}
 		else
 		{
-			it = std::next(it);
-			InsertPacket(it, packetToInsert);
+			if ((std::next(it))->GenerationTime > packetToInsert.GenerationTime)
+			{
+				_DES.insert(std::next(it), packetToInsert);
+			}
+			else
+			{
+				it++;
+				InsertPacket(it, packetToInsert);
+			}
 		}
 	}
 	else
