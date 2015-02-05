@@ -95,12 +95,54 @@ void q2::GenerateObserverPackets()
 
 void q2::GenerateDeparturePackets()
 {
+	printf("Beginning of Departure Packets\n");
+	
+	std::list<packet>::iterator it;
+	packet departure;
+	double packetLength, serviceTime, td;
+	bool firstTime;
+	
+	it = _DES.begin();
+	td = 0;
+	firstTime = true;
+	
+	for (std::list<packet>::iterator it2 = _DES.begin(); it2 != _DES.end(); it2++)
+	{
+		if (it2->TypeOfPacket == 'a')
+		{
+			printf("hello");
+			packetLength = ExponentialRandomGenerator((double)1/_L);
+			serviceTime = packetLength/(double)_C;
+			
+			if (firstTime)
+			{
+				td = _DES.begin()->GenerationTime + serviceTime;
+				firstTime = false;
+			}
+			else
+			{
+				td = td + serviceTime;
+			}
+			
+			departure.TypeOfPacket = d;
+			departure.GenerationTime = td;
+			
+			InsertPacket(it, departure);
+		}
+	}
+	
+	
+	for (std::list<packet>::iterator it2 = _DES.begin(); it2 != _DES.end(); it2++)
+	{
+		printf("time: %f\ttype %c\n", it2->GenerationTime, it2->TypeOfPacket);
+	}
 	
 }
 
 void q2::SortDES()
 {
 	printf("Beginnig of SortDES\n");
+	
 	
 	std::list<packet>::iterator it;
 	packet departure;
@@ -113,23 +155,6 @@ void q2::SortDES()
 	{
 		if (_DES.begin()->TypeOfPacket == a)
 		{
-			packetLength = ExponentialRandomGenerator((double)1/_L);
-			serviceTime = packetLength/(double)_C;
-			
-			if (_Na - _Nd == 0)
-			{
-				td = _DES.begin()->GenerationTime + serviceTime;
-			}
-			else
-			{
-				td = td + serviceTime;
-			}
-			
-			departure.TypeOfPacket = d;
-			departure.GenerationTime = td;
-			
-			InsertPacket(it, departure);
-			
 			_Na = _Na + 1;
 		}
 		else if (_DES.begin()->TypeOfPacket == d)
@@ -149,7 +174,6 @@ void q2::SortDES()
 		
 		it++;
 		_DES.pop_front();
-		printf("Np: %d\tNo: %d\tNi: %d\nNa: %d\tNd: %d\n", _Np, _No, _Ni, _Na, _Nd);
 	}
 }
 

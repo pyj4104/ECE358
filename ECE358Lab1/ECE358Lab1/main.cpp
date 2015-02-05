@@ -13,13 +13,14 @@ int main()
 {
     int timeElapsed;
     
-    timeElapsed = 95;
+    timeElapsed = 50;
     
     q2 * question2;
     
     question2 = new q2(timeElapsed);
     question2->GenerateArrivalPackects();
     question2->GenerateObserverPackets();
+    question2->GenerateDeparturePackets();
     question2->SortDES();
     
     printf("Average # of packets: %f\n", (double)(question2 -> Np())/(double)(question2 -> No()));
