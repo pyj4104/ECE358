@@ -36,52 +36,49 @@ struct event
 class q2
 {
 public:
-	q2 (int numberOfPackets);
-	q2 (int numberOfPackets, double row);
+	q2 ();
+	q2 (int numberOfPackets, double row, long sizeofbuffer);
 	void GenerateArrivalPackects(), GenerateObserverPackets(), GenerateDeparturePackets(), SortDES();
-    long Np(), No(), Ni();
+    long Np(), No(), Ni(), Ngen(), Nloss();
     ~q2();
 private:
     double ExponentialRandomGenerator(double x);
-    long _Na, _No, _Nd, _Ni, _Np, _L, _C, _Time;
+    void init(int timeElapsed, double row, long sizeofbuffer);
+    long _Na, _No, _Nd, _Ni, _Np, _L, _C, _Time, _Ngen, _Nloss, _k;
 	double _Row, _Lambda;
 	priority_queue<event> _DES;
 };
 
-q2::q2(int timeElapsed)
+q2::q2()
 {
+    init(1000, 0.25, 0);
+}
+
+q2::q2(int timeElapsed, double row, long sizeofbuffer)
+{
+    init(timeElapsed, row, sizeofbuffer);
+}
+
+void q2::init(int timeElapsed, double row, long sizeofbuffer)
+{
+    _Row = row;
+    _k = sizeofbuffer;
+    _Time = timeElapsed;
     _Na = 0;
     _Nd = 0;
     _No = 0;
     _Ni = 0;
     _Np = 0;
+    _Ngen = 0;
+    _Nloss = 0;
     _L = 12000;
     _C = 1000000;
-    _Row = 0.25;
     _Lambda = _Row * (double)_C / (double)_L;
-    _Time = timeElapsed;
-	srand(time(NULL));
-}
-
-q2::q2(int timeElapsed, double row)
-{
-	_Na = 0;
-	_Nd = 0;
-	_No = 0;
-	_Ni = 0;
-	_Np = 0;
-	_L = 12000;
-	_C = 1000000;
-	_Row = row;
-	_Lambda = _Row * (double)_C / (double)_L;
-	_Time = timeElapsed;
-	srand(time(NULL));
+    srand(time(NULL));
 }
 
 void q2::GenerateArrivalPackects()
 {
-	cout << "Beginning of Generation of Arrival Packets" << endl;
-	
 	event arrival;
 	double ta = 0.0;
 	
@@ -99,8 +96,6 @@ void q2::GenerateArrivalPackects()
 
 void q2::GenerateObserverPackets()
 {
-	cout << "Beginning of Observer Packets" << endl;
-	
 	event observer;
 	double alpha, to;
 	
@@ -120,8 +115,6 @@ void q2::GenerateObserverPackets()
 
 void q2::SortDES()
 {
-	cout << "Beginnig of SortDES" << endl;
-	
 	event departure;
 	double packetLength, serviceTime, td;
 	
@@ -131,24 +124,33 @@ void q2::SortDES()
 	{
 		if (_DES.top().TypeOfPacket == a)
 		{
-			packetLength = ExponentialRandomGenerator(1.0/_L);
-			serviceTime = packetLength/(double)_C;
-			
-			if (_Na - _Nd == 0)
-			{
-				td = _DES.top().GenerationTime + serviceTime;
-			}
-			else
-			{
-				td += serviceTime;
-			}
-			
-			departure.TypeOfPacket = d;
-			departure.GenerationTime = td;
-			
-			_DES.push(departure);
-			
-			_Na++;
+            _Ngen++;
+            
+            if (_k == 0 || _Na - _Nd < _k)
+            {
+                packetLength = ExponentialRandomGenerator(1.0/_L);
+                serviceTime = packetLength/(double)_C;
+                
+                if (_Na - _Nd == 0)
+                {
+                    td = _DES.top().GenerationTime + serviceTime;
+                }
+                else
+                {
+                    td += serviceTime;
+                }
+                
+                departure.TypeOfPacket = d;
+                departure.GenerationTime = td;
+                
+                _DES.push(departure);
+                
+                _Na++;
+            }
+            else
+            {
+                _Nloss++;
+            }
 		}
 		else if (_DES.top().TypeOfPacket == d)
 		{
@@ -192,6 +194,16 @@ long q2::No()
 long q2::Ni()
 {
 	return _Ni;
+}
+
+long q2::Ngen()
+{
+    return _Ngen;
+}
+
+long q2::Nloss()
+{
+    return _Nloss;
 }
 
 q2::~q2()
