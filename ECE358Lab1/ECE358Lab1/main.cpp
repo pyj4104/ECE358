@@ -19,13 +19,11 @@ int main()
     
     q2 * question2;
     
-    question2 = new q2(timeElapsed);
+    question2 = new q2(timeElapsed, 1.2);
     question2->GenerateArrivalPackects();
     question2->GenerateObserverPackets();
     question2->SortDES();
 	
-	cout<< "ni + np: " <<question2 -> Np() + question2 -> Ni() << endl;
-	cout<< "no: " <<question2 -> No() << endl;
     cout << "Average # of packets: " << (double)(question2 -> Np())/(double)(question2 -> No()) << endl;
     cout << "Idle Probability: " << (double)(question2 -> Ni())/(double)(question2 -> No()) << endl;
     

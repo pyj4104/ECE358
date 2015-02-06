@@ -17,17 +17,17 @@
 
 using namespace std;
 
-enum PacketType {a, d, o};
+enum EventType {a, d, o};
 
-struct packet
+struct event
 {
-    PacketType TypeOfPacket;
+    EventType TypeOfPacket;
     double GenerationTime;
-	bool operator<(const packet& rhs) const
+	bool operator<(const event& rhs) const
 	{
 		return GenerationTime > rhs.GenerationTime;
 	}
-	bool operator>(const packet& rhs) const
+	bool operator>(const event& rhs) const
 	{
 		return GenerationTime < rhs.GenerationTime;
 	}
@@ -36,7 +36,8 @@ struct packet
 class q2
 {
 public:
-    q2 (int numberOfPackets);
+	q2 (int numberOfPackets);
+	q2 (int numberOfPackets, double row);
 	void GenerateArrivalPackects(), GenerateObserverPackets(), GenerateDeparturePackets(), SortDES();
     long Np(), No(), Ni();
     ~q2();
@@ -44,7 +45,7 @@ private:
     double ExponentialRandomGenerator(double x);
     long _Na, _No, _Nd, _Ni, _Np, _L, _C, _Time;
 	double _Row, _Lambda;
-	priority_queue<packet> _DES;
+	priority_queue<event> _DES;
 };
 
 q2::q2(int timeElapsed)
@@ -56,16 +57,32 @@ q2::q2(int timeElapsed)
     _Np = 0;
     _L = 12000;
     _C = 1000000;
-    _Row = 0.95;
+    _Row = 0.25;
     _Lambda = _Row * (double)_C / (double)_L;
     _Time = timeElapsed;
+	srand(time(NULL));
+}
+
+q2::q2(int timeElapsed, double row)
+{
+	_Na = 0;
+	_Nd = 0;
+	_No = 0;
+	_Ni = 0;
+	_Np = 0;
+	_L = 12000;
+	_C = 1000000;
+	_Row = row;
+	_Lambda = _Row * (double)_C / (double)_L;
+	_Time = timeElapsed;
+	srand(time(NULL));
 }
 
 void q2::GenerateArrivalPackects()
 {
 	cout << "Beginning of Generation of Arrival Packets" << endl;
 	
-	packet arrival;
+	event arrival;
 	double ta = 0.0;
 	
 	
@@ -84,7 +101,7 @@ void q2::GenerateObserverPackets()
 {
 	cout << "Beginning of Observer Packets" << endl;
 	
-	packet observer;
+	event observer;
 	double alpha, to;
 	
 	alpha = 3*_Lambda;
@@ -105,11 +122,10 @@ void q2::SortDES()
 {
 	cout << "Beginnig of SortDES" << endl;
 	
-	packet departure;
+	event departure;
 	double packetLength, serviceTime, td;
 	
-	td = 0;
-	int counter = 0;
+	td = 0.0;
 	
 	while (!_DES.empty())
 	{
@@ -157,7 +173,6 @@ double q2::ExponentialRandomGenerator(double x)
 {
 	double value, number;
 	
-	srand(time(NULL));
 	number = rand()/double(RAND_MAX);
 	value = -1 * log(1-number) / x;
 	
