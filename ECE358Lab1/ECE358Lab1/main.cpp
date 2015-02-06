@@ -9,11 +9,13 @@
 #include <iostream>
 #include "q2.h"
 
+using namespace std;
+
 int main()
 {
     int timeElapsed;
     
-    timeElapsed = 95;
+    timeElapsed = 10000;
     
     q2 * question2;
     
@@ -21,9 +23,11 @@ int main()
     question2->GenerateArrivalPackects();
     question2->GenerateObserverPackets();
     question2->SortDES();
-    
-    printf("Average # of packets: %f\n", (double)(question2 -> Np())/(double)(question2 -> No()));
-    printf("Idle Probability: %f\n", (double)(question2 -> Ni())/(double)(question2 -> No()));
+	
+	cout<< "ni + np: " <<question2 -> Np() + question2 -> Ni() << endl;
+	cout<< "no: " <<question2 -> No() << endl;
+    cout << "Average # of packets: " << (double)(question2 -> Np())/(double)(question2 -> No()) << endl;
+    cout << "Idle Probability: " << (double)(question2 -> Ni())/(double)(question2 -> No()) << endl;
     
     question2 = NULL;
     delete question2;
