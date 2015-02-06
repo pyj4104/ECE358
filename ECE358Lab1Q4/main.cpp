@@ -18,20 +18,13 @@ int main()
 	
 	timeElapsed = 10000;
 	
-	for (long sizeofBuffer; sizeofBuffer < 20; sizeofBuffer += 5)
+	for (long sizeofBuffer = 5; sizeofBuffer <= 40; sizeofBuffer *= 2)
 	{
-		if (sizeofBuffer == 0)
-		{
-			cout << "Buffer of inf" << endl;
-		}
-		else
-		{
-			cout << "Buffer of " << sizeofBuffer << endl;
-		}
+		cout << "Buffer of " << sizeofBuffer << endl;
 		
 		cout << "Rho Value,Average # of Packets" << endl;
 		
-		for (double rho = 0.5; rho < 1.6; rho += 0.1)
+		for (double rho = 0.4; rho < 2.0; rho += 0.1)
 		{
 			Question2 = *new q2(timeElapsed, rho, sizeofBuffer);
 			
@@ -39,10 +32,30 @@ int main()
 			Question2.GenerateObserverPackets();
 			Question2.SortDES();
 			
-			cout << rho << "," << (double)(Question2.Np())/(double)(Question2.No()) << endl;
+			cout << rho << "," << (double)(Question2.Nloss())/(double)(Question2.Ngen()) << endl;
 		}
 		
-		cout << endl;
+		for (double rho = 2.0; rho < 5.0; rho += 0.2)
+		{
+			Question2 = *new q2(timeElapsed, rho, sizeofBuffer);
+			
+			Question2.GenerateArrivalPackects();
+			Question2.GenerateObserverPackets();
+			Question2.SortDES();
+			
+			cout << rho << "," << (double)(Question2.Nloss())/(double)(Question2.Ngen()) << endl;
+		}
+		
+		for (double rho = 5.0; rho < 10.0; rho += 0.4)
+		{
+			Question2 = *new q2(timeElapsed, rho, sizeofBuffer);
+			
+			Question2.GenerateArrivalPackects();
+			Question2.GenerateObserverPackets();
+			Question2.SortDES();
+			
+			cout << rho << "," << (double)(Question2.Nloss())/(double)(Question2.Ngen()) << endl;
+		}
 	}
 }
 
