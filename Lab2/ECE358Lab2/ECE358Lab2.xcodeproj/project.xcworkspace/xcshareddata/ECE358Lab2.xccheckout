@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>04694A62-50E5-43E3-B667-0205C2D2C782</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ECE358Lab2</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>FBDEC500F5D2E190C3ACA91EE7AACE8F04FEB543</key>
+		<string>https://github.com/pyj4104/ECE358.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Lab2/ECE358Lab2/ECE358Lab2.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>FBDEC500F5D2E190C3ACA91EE7AACE8F04FEB543</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/pyj4104/ECE358.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>FBDEC500F5D2E190C3ACA91EE7AACE8F04FEB543</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>FBDEC500F5D2E190C3ACA91EE7AACE8F04FEB543</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ECE358</string>
+		</dict>
+	</array>
+</dict>
+</plist>
