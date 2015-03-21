@@ -17,7 +17,7 @@ ABP::ABP(double delta, int chan_cap, int data_len, int header_len, double ber, d
 {
     Event init;
     
-    _Delta = delta;
+    _Delta = delta * tao;
     _Chan_Cap = chan_cap;
     _Data_Len = data_len * 8;
     _Header_Len = header_len * 8;
@@ -116,14 +116,11 @@ void ABP::ES_Processor()
 	
 	while (!_ES.empty())
 	{
-		std::cout<<Time<<std::endl;
-		
 		event = _ES.top();
 		_ES.pop();
 		
 		if (event.type == TIME_OUT)
 		{
-			std::cout << "time out" << std::endl;
 			while (!_ES.empty())
 			{
 				_ES.pop();
@@ -139,7 +136,6 @@ void ABP::ES_Processor()
 		{
 			if (event.flag == ERROR_FREE && event.RN == _Next_Expected_ACK)
 			{
-				std::cout << "ack" << std::endl;
 				if (_Counter == 10000)
 				{
 					break;

@@ -31,8 +31,7 @@ public:
     ~GBN();
     double Time;
 private:
-    int _N, _Header_Len, _Data_Len, _Chan_Cap, _Next_Expecetd_Frame;
-    int _Next_Expected_ACK[4];
+    int _N, _Header_Len, _Data_Len, _Chan_Cap, _Next_Expecetd_Frame, _Next_Expected_ACK;
     double _BER, _Tao, _Delta;
     std::priority_queue<Event> _ES;
     Buffer _Buffer[4];

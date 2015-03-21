@@ -16,8 +16,6 @@
 
 GBN::GBN(double delta, int chan_cap, int data_len, int header_len, double ber, double tao, int n)
 {
-    std::cout << "start" << std::endl;
-    
     _Delta = delta;
     _Chan_Cap = chan_cap;
     _Data_Len = data_len * 8;
@@ -30,12 +28,10 @@ GBN::GBN(double delta, int chan_cap, int data_len, int header_len, double ber, d
     //_Buffer = new Buffer[_N];
     _Buffer[0].SN = 0;
     _Next_Expecetd_Frame = 1;
-    //_Next_Expected_ACK = new int[_N];
     
     for (int i = 0; i < _N; i++)
     {
 		_Buffer[i].SN = i;
-        _Next_Expected_ACK[i] = NULL;
     }
     
     std::srand(time(NULL));
@@ -43,20 +39,19 @@ GBN::GBN(double delta, int chan_cap, int data_len, int header_len, double ber, d
 
 void GBN::Sender()
 {
-    std::cout << "sender" << std::endl;
     Event to, top;
-    int p, packets_Transfered, buf_counter;
+    int p, buf_counter, done;
 	
-	buf_counter = 0;
+	done = 1;
     
 	while (true)
 	{
+		buf_counter = 0;
 		while (buf_counter < _N)
 		{
 			//Prepare
 			Time += (double)(_Data_Len + _Header_Len) / (_Chan_Cap);
 			_Buffer[buf_counter].Time = Time;
-			_Next_Expected_ACK[buf_counter] = (_Buffer[buf_counter].SN+1)%(_N);
 			if (_ES.empty())
 			{
 				to.type = TIME_OUT;
@@ -69,8 +64,40 @@ void GBN::Sender()
 			//Process
 			top = _ES.top();
 			_ES.pop();
-			
-			int x = 1;
+			if (top.type == TIME_OUT)
+			{
+				while (!_ES.empty())
+				{
+					_ES.pop();
+				}
+				buf_counter = 0;
+				break;
+			}
+			else if (top.type == ACK && top.flag == ERROR_FREE)
+			{
+				if (done > 10000)
+				{
+					break;
+				}
+				for (int i = 0; i < _N; i++)
+				{
+					if (top.RN == _Buffer[i].SN)
+					{
+						p = _Buffer[0].SN;
+						ShiftLeft(i+1);
+						while (!_ES.empty())
+						{
+							_ES.pop();
+						}
+						done += i+1;
+					}
+				}
+			}
+			buf_counter++;
+		}
+		if (done > 10000)
+		{
+			break;
 		}
 	}
 }
@@ -81,7 +108,6 @@ void GBN::Receiver(Status flag)
     {
         if (flag == ERROR_FREE)
         {
-            _Next_Expecetd_Frame = (_Next_Expecetd_Frame) % (_N);
 			_Next_Expecetd_Frame = (_Next_Expecetd_Frame + 1) % (_N);
         }
         Time = Time + (_Header_Len / (double) _Chan_Cap);
@@ -97,7 +123,7 @@ void GBN::Send()
     Receiver(flag);
     if (flag != LOST)
     {
-        Chan(_Header_Len);
+        flag = Chan(_Header_Len);
     }
     if (flag != LOST)
     {
@@ -148,10 +174,19 @@ Status GBN::Chan(int packetLen)
 
 void GBN::ShiftLeft(int by)
 {
-    for (int i = 0; i < (_N - 1); i++)
+	int lastnum, lasti;
+	
+    for (int i = 0; i < (_N - by); i++)
     {
-        _Buffer[i] = _Buffer[i+by] ;
+		_Buffer[i] = _Buffer[i+by];
+		lastnum = _Buffer[i].SN;
+		lasti = i;
     }
+	for (int i = (lasti + 1); i < _N; i++)
+	{
+		lastnum = (lastnum + 1) % (_N+1);
+		_Buffer[i].SN = lastnum;
+	}
 }
 
 GBN::~GBN()

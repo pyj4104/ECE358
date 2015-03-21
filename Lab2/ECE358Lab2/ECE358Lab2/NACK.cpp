@@ -46,14 +46,11 @@ void NACK::ES_Processor()
     
     while (!_ES.empty())
     {
-        std::cout<<Time<<std::endl;
-        
         event = _ES.top();
         _ES.pop();
         
         if (event.type == TIME_OUT)
         {
-            std::cout << "time out" << std::endl;
             while (!_ES.empty())
             {
                 _ES.pop();
@@ -69,7 +66,6 @@ void NACK::ES_Processor()
         {
             if (event.flag == ERROR_FREE && event.RN == _Next_Expected_ACK)
             {
-                std::cout << "ack" << std::endl;
                 if (_Counter == 10000)
                 {
                     break;
@@ -92,7 +88,6 @@ void NACK::ES_Processor()
             }
             else
             {
-                std::cout << "nack" << std::endl;
                 while (!_ES.empty())
                 {
                     _ES.pop();

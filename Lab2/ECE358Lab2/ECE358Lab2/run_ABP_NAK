@@ -1,0 +1,3 @@
+g++ main2.cpp NACK.cpp ABP.cpp -lm -o abp_nak
+chmod 777 *
+./abp_nak > abp_nak.csv

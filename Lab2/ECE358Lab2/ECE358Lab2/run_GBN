@@ -1,0 +1,3 @@
+g++ main3.cpp GBN.cpp -lm -o gbn
+chmod 777 *
+./gbn > GBN.csv 
