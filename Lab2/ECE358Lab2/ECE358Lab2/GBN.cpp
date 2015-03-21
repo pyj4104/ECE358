@@ -26,8 +26,7 @@ GBN::GBN(double delta, int chan_cap, int data_len, int header_len, double ber, d
     
     Time = 0;
     //_Buffer = new Buffer[_N];
-    _Buffer[0].SN = 0;
-    _Next_Expecetd_Frame = 1;
+    _Next_Expecetd_Frame = 0;
     
     for (int i = 0; i < _N; i++)
     {
@@ -41,74 +40,110 @@ void GBN::Sender()
 {
     Event to, top;
     int p, buf_counter, done;
+	bool fire;
 	
 	done = 1;
-    
-	while (true)
+	fire = false;
+	
+	//Prepare
+	Time += (double) (_Header_Len + _Data_Len) / _Chan_Cap;
+	if (_ES.empty())
 	{
-		buf_counter = 0;
-		while (buf_counter < _N)
+		to.type = TIME_OUT;
+		to.time = _Buffer[0].Time + _Delta;
+		
+		_ES.push(to);
+	}
+	_Buffer[0].Time = Time;
+	for (int i = 1; i < _N; i++)
+	{
+		_Buffer[i].Time = _Buffer[i-1].Time+(double)(_Data_Len + _Header_Len) / (_Chan_Cap);
+		Send();
+	}
+	
+	while (done < 10000)
+	{
+		while (done < 10000)
 		{
-			//Prepare
-			Time += (double)(_Data_Len + _Header_Len) / (_Chan_Cap);
-			_Buffer[buf_counter].Time = Time;
-			if (_ES.empty())
-			{
-				to.type = TIME_OUT;
-				to.time = _Buffer[buf_counter].Time + _Delta;
-				
-				_ES.push(to);
-			}
-			//Send
-			Send();
+			std::cout << done << std::endl;
 			//Process
 			top = _ES.top();
-			_ES.pop();
+			std::cout << top.RN << " " << top.time << std::endl;
+			std::cout << _Buffer[0].SN << " " << _Buffer[0].Time << std::endl << std::endl;
+			//_ES.pop();
 			if (top.type == TIME_OUT)
 			{
+				Time = top.time;
 				while (!_ES.empty())
 				{
 					_ES.pop();
 				}
-				buf_counter = 0;
+				_Buffer[0].Time = Time;
+				for (int i = 1; i < _N; i++)
+				{
+					_Buffer[i].Time = _Buffer[i-1].Time+(double)(_Data_Len + _Header_Len) / (_Chan_Cap);
+					Send();
+				}
 				break;
 			}
 			else if (top.type == ACK && top.flag == ERROR_FREE)
 			{
-				if (done > 10000)
-				{
-					break;
-				}
 				for (int i = 0; i < _N; i++)
 				{
 					if (top.RN == _Buffer[i].SN)
 					{
-						p = _Buffer[0].SN;
-						ShiftLeft(i+1);
-						while (!_ES.empty())
-						{
-							_ES.pop();
-						}
-						done += i+1;
+						fire = true;
 					}
 				}
+				if (done >= 10000)
+				{
+					break;
+				}
+				if (fire)
+				{
+					if (_Buffer[_N-1].Time > top.time)
+					{
+						Time = _Buffer[_N-1].Time;
+					}
+					else
+					{
+						Time = top.time;
+					}
+					for (int i = 0; i < _N; i++)
+					{
+						if (top.RN == _Buffer[i].SN)
+						{
+							p = _Buffer[0].SN;
+							ShiftLeft(i);
+							while (!_ES.empty())
+							{
+								_ES.pop();
+							}
+							done += i;
+							for(int j = 0; j < i; j++)
+							{
+								Send();
+							}
+							break;
+						}
+					}
+				}
+				fire = false;
+			}else{
+				Time = top.time;
 			}
 			buf_counter++;
 		}
-		if (done > 10000)
-		{
-			break;
-		}
-	}
+	
 }
 
 void GBN::Receiver(Status flag)
 {
     if (flag != LOST)
     {
-        if (flag == ERROR_FREE)
+        if (flag == ERROR_FREE && _Buffer[0].SN == _Next_Expecetd_Frame)
         {
-			_Next_Expecetd_Frame = (_Next_Expecetd_Frame + 1) % (_N);
+			_Next_Expecetd_Frame = (_Next_Expecetd_Frame + 1) % (_N + 1);
         }
         Time = Time + (_Header_Len / (double) _Chan_Cap);
     }
@@ -175,7 +210,10 @@ Status GBN::Chan(int packetLen)
 void GBN::ShiftLeft(int by)
 {
 	int lastnum, lasti;
-	
+	bool last = false;
+	if(_Buffer[_N-1].Time < Time){
+		last = true;
+	}
     for (int i = 0; i < (_N - by); i++)
     {
 		_Buffer[i] = _Buffer[i+by];
@@ -186,6 +224,13 @@ void GBN::ShiftLeft(int by)
 	{
 		lastnum = (lastnum + 1) % (_N+1);
 		_Buffer[i].SN = lastnum;
+		if(last){
+			last = false;
+			_Buffer[i].Time = Time + (double)(_Header_Len + _Data_Len)/_Chan_Cap;
+		}else{
+			_Buffer[i].Time = _Buffer[i-1].Time + (double)(_Header_Len + _Data_Len)/_Chan_Cap;
+		}
+		
 	}
 }
 
